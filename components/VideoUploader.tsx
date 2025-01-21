@@ -5,6 +5,8 @@ import { useDropzone } from 'react-dropzone';
 import { Upload, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { getSession } from "next-auth/react";
+import { Console } from 'console';
 
 export function VideoUploader() {
   const [isUploading, setIsUploading] = useState(false);
@@ -15,27 +17,38 @@ export function VideoUploader() {
     if (!file) return;
 
     setIsUploading(true);
-    
-    // Create FormData
-    const formData = new FormData();
-    formData.append('video', file);
 
     try {
-      const response = await fetch('/api/upload', {
+      // Get the session to retrieve the user ID
+      const session = await getSession();
+      if (!session || !session.user?.id) {
+        throw new Error("User not authenticated");
+      }
+
+      // Create FormData and append video + userId
+      const formData = new FormData();
+      formData.append('video', file);
+      formData.append('userId', session.user.id); // Send userId with FormData
+
+      const response = await fetch('http://localhost:3001/api/upload-video', {
         method: 'POST',
         body: formData,
       });
 
+      console.log("response after video got saved : ",response);
+
       if (!response.ok) throw new Error('Upload failed');
 
       const data = await response.json();
-      
+      console.log("data after video upload:", data);
+
       toast({
         title: "Success!",
         description: "Video uploaded successfully. Processing will begin shortly.",
       });
-      
+
     } catch (error) {
+      console.error("Upload error:", error);
       toast({
         title: "Error",
         description: "Failed to upload video. Please try again.",
