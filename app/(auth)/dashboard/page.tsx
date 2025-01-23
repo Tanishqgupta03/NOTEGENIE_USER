@@ -1,9 +1,11 @@
 import { VideoUploader } from '@/components/VideoUploader';
 import { Sidebar } from '@/components/Sidebar';
 import { FileVideo, Brain, ListTodo } from 'lucide-react';
+import { VideoProvider } from '@/app/context/VideoContext';
 
 export default function Home() {
   return (
+  <VideoProvider>
     <div className="flex min-h-screen bg-gradient-to-b from-black to-gray-900">
       {/* Sidebar */}
       <Sidebar />
@@ -64,5 +66,6 @@ export default function Home() {
         </div>
       </main>
     </div>
+  </VideoProvider>
   );
 }

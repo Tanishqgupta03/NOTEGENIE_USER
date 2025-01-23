@@ -80,3 +80,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+@keyframes blink {
+  0%, 100% { background-color: rgba(31, 41, 55, 0.8); } /* Slightly lighter gray */
+  50% { background-color: rgba(55, 65, 81, 0.8); } /* Darker gray */
+}
+
+.animate-blink {
+  animation: blink 0.5s ease-in-out 5;
+}

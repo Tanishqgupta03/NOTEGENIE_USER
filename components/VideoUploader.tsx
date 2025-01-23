@@ -6,11 +6,13 @@ import { Upload, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { getSession } from "next-auth/react";
-import { Console } from 'console';
+import { useVideo } from '@/app/context/VideoContext';
+//import { Console } from 'console';
 
 export function VideoUploader() {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+  const { setLatestUpload } = useVideo(); // Use the context
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -19,28 +21,49 @@ export function VideoUploader() {
     setIsUploading(true);
 
     try {
-      // Get the session to retrieve the user ID
       const session = await getSession();
       if (!session || !session.user?.id) {
         throw new Error("User not authenticated");
       }
 
-      // Create FormData and append video + userId
+      const userId = session.user?.id;
       const formData = new FormData();
       formData.append('video', file);
-      formData.append('userId', session.user.id); // Send userId with FormData
+      formData.append('userId', session.user.id);
+
+      localStorage.removeItem(`latestUpload_${userId}`);
 
       const response = await fetch('http://localhost:3001/api/upload-video', {
         method: 'POST',
         body: formData,
       });
 
-      console.log("response after video got saved : ",response);
-
       if (!response.ok) throw new Error('Upload failed');
 
       const data = await response.json();
       console.log("data after video upload:", data);
+
+      // Set the latest upload in the context
+      setLatestUpload({
+        _id: data.video._id,
+        fileName: data.video.filename,
+        uploadDate: data.video.createdAt,
+        status: "completed",
+        url: data.video.url, // Add the url property
+      });
+
+      // Set the latest upload in the context
+      const latestUploadData = {
+        _id: data.video._id,
+        fileName: data.video.filename,
+        uploadDate: data.video.createdAt,
+        status: "completed",
+        url: data.video.url, // Add the url property
+      };
+      setLatestUpload(latestUploadData);
+
+      // Save to local storage with user ID as the key
+      localStorage.setItem(`latestUpload_${userId}`, JSON.stringify(latestUploadData));
 
       toast({
         title: "Success!",
@@ -57,7 +80,7 @@ export function VideoUploader() {
     } finally {
       setIsUploading(false);
     }
-  }, [toast]);
+  }, [toast, setLatestUpload]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

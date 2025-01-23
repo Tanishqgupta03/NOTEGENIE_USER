@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { signOut } from 'next-auth/react';
+import { useState, useEffect } from 'react';
+import { signOut, getSession } from 'next-auth/react';
 import { 
   Menu, 
   X, 
@@ -10,7 +10,8 @@ import {
   History,
   LogOut,
   User,
-  Settings
+  Settings,
+  Upload
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -23,21 +24,55 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-interface VideoUpload {
-  _id: string;
-  fileName: string;
-  uploadDate: string;
-  status: string;
-}
+import { useVideo } from '@/app/context/VideoContext'; // Import the context
+import Link from 'next/link'; // Import Link from next/link
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'yesterday' | 'week'>('today');
+  const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'yesterday' | 'week' | 'upload'>('upload');
+  const { latestUpload, setLatestUpload } = useVideo(); // Use the context
+  const [blink, setBlink] = useState(false);
 
-  const uploads: VideoUpload[] = [
-    { _id: '1', fileName: 'team-meeting.mp4', uploadDate: '2024-01-10T10:00:00Z', status: 'completed' },
-  ];
+  // Get the user ID from the session and check localStorage for latestUpload
+  useEffect(() => {
+    const fetchUserAndLatestUpload = async () => {
+      const session = await getSession();
+      console.log("session for sidebar is here : ",session);
+      if (session?.user?.id) {
+        const userId = session.user.id;
+        const storedUpload = localStorage.getItem(`latestUpload_${userId}`);
+
+        if (storedUpload) {
+          const parsedUpload = JSON.parse(storedUpload);
+
+          // Check if the upload is within the last 23 hours
+          const uploadDate = new Date(parsedUpload.uploadDate);
+          const currentDate = new Date();
+          const timeDifference = currentDate.getTime() - uploadDate.getTime();
+          const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+          if (hoursDifference <= 23) {
+            setLatestUpload(parsedUpload); // Set the latest upload in the context
+          } else {
+            // If the upload is older than 23 hours, clear it from localStorage
+            localStorage.removeItem(`latestUpload_${userId}`);
+            setLatestUpload(null); // Clear the latest upload in the context
+          }
+        }
+      }
+    };
+
+    fetchUserAndLatestUpload();
+  }, [setLatestUpload]);
+
+  // Trigger blink animation when latestUpload changes
+  useEffect(() => {
+    if (latestUpload) {
+      setBlink(true);
+      const timeout = setTimeout(() => setBlink(false), 2000); // Blink for 2 seconds
+      return () => clearTimeout(timeout);
+    }
+  }, [latestUpload]);
 
   const periods = [
     { id: 'today', label: "Today's Uploads", icon: Clock },
@@ -76,10 +111,53 @@ export function Sidebar() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-hidden flex flex-col">
+        <ScrollArea className="flex-1">
           <div className="p-4">
+            {/* Latest Upload Heading */}
+            <h2 className="text-lg font-semibold mb-4 text-gray-300">Latest Upload</h2>
+
+            {/* Latest Upload Card - Wrapped in Link */}
+            <Link href="/uploaded-video">
+              <div className={cn(
+                "mb-6 p-3 rounded-lg bg-gray-800 border border-gray-700 transition-all duration-300 cursor-pointer hover:bg-gray-700",
+                blink && "animate-blink" // Add blink animation
+              )}>
+                {latestUpload ? (
+                  <>
+                    <p className="font-medium truncate text-gray-300">{latestUpload.fileName}</p>
+                    <p className="text-sm text-gray-400">
+                      {new Date(latestUpload.uploadDate).toLocaleString()}
+                    </p>
+                    <div className="mt-1">
+                      <span className="text-xs bg-green-900 text-green-300 px-2 py-1 rounded-full">
+                        {latestUpload.status}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-400">No uploads yet.</p>
+                )}
+              </div>
+            </Link>
+
+            {/* Video History Section */}
             <h2 className="text-lg font-semibold mb-4 text-gray-300">Video History</h2>
             
+            {/* Upload New Video Button */}
+            <Button
+              variant={selectedPeriod === 'upload' ? "secondary" : "ghost"}
+              className={cn(
+                "w-full justify-start text-gray-300 hover:bg-gray-800 hover:text-white mb-4",
+                selectedPeriod === 'upload' && "bg-gray-800 text-white"
+              )}
+              onClick={() => {
+                window.location.href = '/dashboard';
+              }}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Upload New Video
+            </Button>
+
             <div className="space-y-2">
               {periods.map(({ id, label, icon: Icon }) => (
                 <Button
@@ -87,7 +165,7 @@ export function Sidebar() {
                   variant={selectedPeriod === id ? "secondary" : "ghost"}
                   className={cn(
                     "w-full justify-start text-gray-300 hover:bg-gray-800 hover:text-white",
-                    selectedPeriod === id && "bg-gray-800 text-white" // Active state styling
+                    selectedPeriod === id && "bg-gray-800 text-white"
                   )}
                   onClick={() => setSelectedPeriod(id)}
                 >
@@ -96,29 +174,8 @@ export function Sidebar() {
                 </Button>
               ))}
             </div>
-
-            <ScrollArea className="mt-6 flex-1 h-[calc(100vh-400px)]">
-              <div className="space-y-2">
-                {uploads.map((upload) => (
-                  <div
-                    key={upload._id}
-                    className="p-3 rounded-lg bg-gray-800 hover:bg-gray-700 cursor-pointer border border-gray-700"
-                  >
-                    <p className="font-medium truncate text-gray-300">{upload.fileName}</p>
-                    <p className="text-sm text-gray-400">
-                      {new Date(upload.uploadDate).toLocaleString()}
-                    </p>
-                    <div className="mt-1">
-                      <span className="text-xs bg-green-900 text-green-300 px-2 py-1 rounded-full">
-                        {upload.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
           </div>
-        </div>
+        </ScrollArea>
 
         {/* Bottom Section */}
         <div className="p-4 border-t border-gray-800 space-y-4">
