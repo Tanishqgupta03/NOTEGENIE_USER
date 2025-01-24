@@ -90,3 +90,19 @@
 .animate-blink {
   animation: blink 0.5s ease-in-out 5;
 }
+
+@keyframes pulsatingBlur {
+  0% {
+    filter: blur(2px);
+  }
+  50% {
+    filter: blur(4px);
+  }
+  100% {
+    filter: blur(2px);
+  }
+}
+
+.live-blur {
+  animation: pulsatingBlur 1.5s infinite;
+}
