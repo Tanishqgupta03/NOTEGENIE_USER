@@ -1,6 +1,28 @@
+"use client"
+
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function LandingPage() {
+  const [isLoadingStart, setIsLoadingStart] = useState(false);
+  const [isLoadingPremium, setIsLoadingPremium] = useState(false);
+
+  const handleGetStarted = () => {
+    setIsLoadingStart(true);
+    // Simulate an async operation (e.g., API call or redirect)
+    setTimeout(() => {
+      window.location.href = '/dashboard';
+    }, 1000); // Adjust the delay as needed
+  };
+
+  const handleUpgradeNow = () => {
+    setIsLoadingPremium(true);
+    // Simulate an async operation (e.g., API call or redirect)
+    setTimeout(() => {
+      window.location.href = '/pricing';
+    }, 1000); // Adjust the delay as needed
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-gray-900">
       {/* Header */}
@@ -36,11 +58,16 @@ export default function LandingPage() {
         </p>
         
         {/* Cards Section */}
-        <div className="flex flex-col md:flex-row gap-8 mb-20"> {/* Added margin-bottom */}
+        <div className="flex flex-col md:flex-row gap-8 mb-20">
           {/* Card 1: Start Now */}
           <div className="bg-gray-800 p-8 rounded-lg border border-gray-700 hover:border-blue-500 transition duration-300 max-w-sm text-left">
             <h2 className="text-2xl font-bold text-white mb-4">
               Start Now <span className="text-blue-500">→</span>
+              {isLoadingStart && (
+                <div className="ml-2 inline-block">
+                  <div className="w-4 h-4 border-2 border-white border-t-2 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
             </h2>
             <p className="text-gray-300 mb-6">
               Free Access to Note-Genie
@@ -48,18 +75,24 @@ export default function LandingPage() {
             <p className="text-gray-400">
               Experience the intelligent model
             </p>
-            <Link
-              href="/dashboard"
+            <button
+              onClick={handleGetStarted}
+              disabled={isLoadingStart}
               className="mt-6 inline-block bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
             >
               Get Started
-            </Link>
+            </button>
           </div>
 
           {/* Card 2: Unlock Premium */}
           <div className="bg-gray-800 p-8 rounded-lg border border-gray-700 hover:border-purple-500 transition duration-300 max-w-sm text-left">
             <h2 className="text-2xl font-bold text-white mb-4">
               Unlock Premium <span className="text-purple-500">→</span>
+              {isLoadingPremium && (
+                <div className="ml-2 inline-block">
+                  <div className="w-4 h-4 border-2 border-white border-t-2 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
             </h2>
             <p className="text-gray-300 mb-6">
               Experience beyond intelligence
@@ -67,12 +100,13 @@ export default function LandingPage() {
             <p className="text-gray-400">
               Advanced features and insights
             </p>
-            <Link
-              href="/pricing"
+            <button
+              onClick={handleUpgradeNow}
+              disabled={isLoadingPremium}
               className="mt-6 inline-block bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition duration-300"
             >
               Upgrade Now
-            </Link>
+            </button>
           </div>
         </div>
       </section>

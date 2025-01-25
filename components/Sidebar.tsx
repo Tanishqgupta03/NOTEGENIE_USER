@@ -32,6 +32,7 @@ export function Sidebar() {
   const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'yesterday' | 'week' | 'upload'>('upload');
   const { latestUpload, setLatestUpload } = useVideo(); // Use the context
   const [blink, setBlink] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Get the user ID from the session and check localStorage for latestUpload
   useEffect(() => {
@@ -118,13 +119,29 @@ export function Sidebar() {
 
             {/* Latest Upload Card - Wrapped in Link */}
             <Link href="/uploaded-video">
-              <div className={cn(
-                "mb-6 p-3 rounded-lg bg-gray-800 border border-gray-700 transition-all duration-300 cursor-pointer hover:bg-gray-700",
-                blink && "animate-blink" // Add blink animation
-              )}>
+              <div
+                className={cn(
+                  "mb-6 p-3 rounded-lg bg-gray-800 border border-gray-700 transition-all duration-300 cursor-pointer hover:bg-gray-700",
+                  blink && "animate-blink" // Add blink animation
+                )}
+                onClick={() => {
+                  setIsLoading(true); // Set loading state to true
+                  // Simulate a delay (e.g., fetching data or redirecting)
+                  setTimeout(() => {
+                    setIsLoading(false); // Set loading state to false after delay
+                  }, 2000); // Adjust the delay as needed
+                }}
+              >
                 {latestUpload ? (
                   <>
-                    <p className="font-medium truncate text-gray-300">{latestUpload.fileName}</p>
+                    <div className="flex items-center">
+                      <p className="font-medium truncate text-gray-300">{latestUpload.fileName}</p>
+                      {isLoading && (
+                        <div className="ml-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-2 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-400">
                       {new Date(latestUpload.uploadDate).toLocaleString()}
                     </p>
