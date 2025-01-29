@@ -26,13 +26,14 @@ export default function Home() {
           {/* Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             {/* Upload Video Card */}
+            {/* Upload Video Card */}
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
               <div className="flex items-center mb-4">
                 <FileVideo className="w-8 h-8 text-blue-500" />
-                <h3 className="text-xl font-semibold ml-2 text-white">Upload Video</h3>
+                <h3 className="text-xl font-semibold ml-2 text-white">Upload Video (Free Tier)</h3>
               </div>
               <p className="text-gray-300">
-                Upload your meeting recordings in various formats
+                Upload meeting recordings in various formats (5 min, 250 MB max)
               </p>
             </div>
 

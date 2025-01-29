@@ -7,12 +7,45 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { getSession } from "next-auth/react";
 import { useVideo } from '@/app/context/VideoContext';
-//import { Console } from 'console';
+
+// Constants for validation
+const MAX_FILE_SIZE_MB = 250;
+const MAX_DURATION_MINUTES = 5;
 
 export function VideoUploader() {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
-  const { setLatestUpload } = useVideo(); // Use the context
+  const { setLatestUpload } = useVideo();
+
+  const validateFile = async (file: File) => {
+    // File size validation
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      throw new Error(`File size exceeds ${MAX_FILE_SIZE_MB}MB limit`);
+    }
+
+    // Video duration validation
+    const duration = await getVideoDuration(file);
+
+    console.log("duration : ",duration)
+    if (duration > MAX_DURATION_MINUTES * 60) {
+      throw new Error(`Video exceeds ${MAX_DURATION_MINUTES} minute limit`);
+    }
+  };
+
+  const getVideoDuration = (file: File): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(video.src);
+        resolve(video.duration);
+      };
+      
+      video.onerror = () => reject('Error reading video');
+      video.src = URL.createObjectURL(file);
+    });
+  };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -21,15 +54,18 @@ export function VideoUploader() {
     setIsUploading(true);
 
     try {
+      // Validate file before upload
+      await validateFile(file);
+
       const session = await getSession();
       if (!session || !session.user?.id) {
         throw new Error("User not authenticated");
       }
 
-      const userId = session.user?.id;
+      const userId = session.user.id;
       const formData = new FormData();
       formData.append('video', file);
-      formData.append('userId', session.user.id);
+      formData.append('userId', userId);
 
       localStorage.removeItem(`latestUpload_${userId}`);
 
@@ -41,28 +77,16 @@ export function VideoUploader() {
       if (!response.ok) throw new Error('Upload failed');
 
       const data = await response.json();
-      console.log("data after video upload:", data);
 
-      // Set the latest upload in the context
-      setLatestUpload({
-        _id: data.video._id,
-        fileName: data.video.filename,
-        uploadDate: data.video.createdAt,
-        status: "completed",
-        url: data.video.url, // Add the url property
-      });
-
-      // Set the latest upload in the context
+      // Update context and local storage
       const latestUploadData = {
         _id: data.video._id,
         fileName: data.video.filename,
         uploadDate: data.video.createdAt,
         status: "completed",
-        url: data.video.url, // Add the url property
+        url: data.video.url,
       };
       setLatestUpload(latestUploadData);
-
-      // Save to local storage with user ID as the key
       localStorage.setItem(`latestUpload_${userId}`, JSON.stringify(latestUploadData));
 
       toast({
@@ -74,7 +98,7 @@ export function VideoUploader() {
       console.error("Upload error:", error);
       toast({
         title: "Error",
-        description: "Failed to upload video. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to upload video",
         variant: "destructive",
       });
     } finally {
@@ -117,7 +141,10 @@ export function VideoUploader() {
                   : "Drag & drop your video here"}
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                or click to select a file
+                Supported formats: MP4, AVI, MOV, MKV
+              </p>
+              <p className="text-sm text-gray-500">
+                Max {MAX_DURATION_MINUTES} minutes • Max {MAX_FILE_SIZE_MB}MB
               </p>
             </div>
             <Button variant="outline">
