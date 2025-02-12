@@ -8,6 +8,7 @@ declare module "next-auth" {
       email?: string;
       name?: string;
       image?: string;
+      tier: string; // Add tier to the Session user object
     };
   }
 
@@ -18,6 +19,7 @@ declare module "next-auth" {
     email?: string;
     name?: string;
     image?: string;
+    tier: string; // Add tier to the User type
   }
 }
 
@@ -26,5 +28,6 @@ declare module "next-auth/jwt" {
     id: string;
     username: string;
     email?: string;
+    tier: string; // Add tier to the JWT type
   }
 }

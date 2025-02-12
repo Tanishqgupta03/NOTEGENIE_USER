@@ -34,6 +34,8 @@ export function Sidebar() {
   const [blink, setBlink] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  var tier_details="Starter";
+
   // Get the user ID from the session and check localStorage for latestUpload
   useEffect(() => {
     const fetchUserAndLatestUpload = async () => {
@@ -61,6 +63,9 @@ export function Sidebar() {
           }
         }
       }
+      if(session?.user?.tier){
+        tier_details = session.user.tier;
+      }
     };
 
     fetchUserAndLatestUpload();
@@ -84,13 +89,18 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile Menu Button */}
-      <Button
-        variant="ghost"
-        className="md:hidden fixed top-4 right-4 z-50"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-      </Button>
+      {/* Mobile Menu Button */}
+        <Button
+          variant="ghost"
+          className="md:hidden fixed top-4 right-4 z-50 bg-gray-900 hover:bg-gray-800 text-white"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
+        </Button>
 
       {/* Sidebar */}
       <div
@@ -106,7 +116,7 @@ export function Sidebar() {
             <img src="/images/side_logo.png" alt="NoteGenie Logo" className="h-10 w-10 mr-2" />
             {/* App Name */}
             <span className="font-semibold text-lg bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-              NOTEGENIE
+              NOTEGENIE {tier_details}
             </span>
           </div>
         </div>

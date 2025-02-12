@@ -9,7 +9,7 @@ import { getSession } from "next-auth/react";
 import { useVideo } from '@/app/context/VideoContext';
 
 // Constants for validation
-const MAX_FILE_SIZE_MB = 250;
+const MAX_FILE_SIZE_MB = 100;
 const MAX_DURATION_MINUTES = 5;
 
 export function VideoUploader() {
@@ -22,15 +22,21 @@ export function VideoUploader() {
     if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
       throw new Error(`File size exceeds ${MAX_FILE_SIZE_MB}MB limit`);
     }
-
+  
     // Video duration validation
     const duration = await getVideoDuration(file);
-
-    console.log("duration : ",duration)
+  
+    console.log("duration:", duration);
+  
+    if (duration < 30) {
+      throw new Error("Video must be at least 30 seconds long");
+    }
+  
     if (duration > MAX_DURATION_MINUTES * 60) {
       throw new Error(`Video exceeds ${MAX_DURATION_MINUTES} minute limit`);
     }
   };
+  
 
   const getVideoDuration = (file: File): Promise<number> => {
     return new Promise((resolve, reject) => {
@@ -144,7 +150,7 @@ export function VideoUploader() {
                 Supported formats: MP4, AVI, MOV, MKV
               </p>
               <p className="text-sm text-gray-500">
-                Max {MAX_DURATION_MINUTES} minutes • Max {MAX_FILE_SIZE_MB}MB
+                Min 30 sec • Max {MAX_DURATION_MINUTES} minutes • Max {MAX_FILE_SIZE_MB}MB
               </p>
             </div>
             <Button variant="outline">

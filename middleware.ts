@@ -35,10 +35,10 @@ export async function middleware(req: NextRequest) {
  // console.log("Middleware: Token fetched from API:", token);
 
   // Redirect to login if trying to access protected routes without a token
-  if (pathname.startsWith("/dashboard") && !token) {
+  if ((pathname.startsWith("/dashboard") || pathname.startsWith("/uploaded-video")) && !token) {
     console.log("Middleware: Redirecting to sign-in");
     return NextResponse.redirect(new URL("/sign-in", req.url));
-  }
+  }  
 
   // Allow authenticated users
   console.log("Middleware: User authenticated");

@@ -60,6 +60,7 @@ export async function POST(request: Request) {
         existingUserByEmail.verifyCode = verifyCode;
         existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
         existingUserByEmail.userType = userType;
+        existingUserByEmail.tier = "Starter"; // Ensure default tier is set
         existingUserByEmail.updatedAt = new Date(); // Update the updatedAt field
         await existingUserByEmail.save();
       }
@@ -79,7 +80,11 @@ export async function POST(request: Request) {
         isVerified: false,
         role: "user", // Default role
         userType, // Set userType from the request
+        tier: "Starter", // Default tier
       });
+
+
+      console.log("newUser : ",newUser);
 
       await newUser.save();
     }

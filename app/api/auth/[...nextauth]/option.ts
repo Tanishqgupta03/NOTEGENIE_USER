@@ -11,6 +11,7 @@ interface User {
   username: string;
   password: string;
   isVerified: boolean;
+  tier: string; // Added tier field
 }
 
 export const authOptions: NextAuthOptions = {
@@ -69,6 +70,7 @@ export const authOptions: NextAuthOptions = {
           ...session.user,
           id: token.id as string,
           username: token.username as string,
+          tier: token.tier as string // Added tier to session
         };
       }
 
@@ -81,6 +83,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user._id.toString();
         token.username = user.username;
+        token.tier = user.tier; // Added tier to JWT
       }
 
       console.log("JWT callback - Token after update:", token);
