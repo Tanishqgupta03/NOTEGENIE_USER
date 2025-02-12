@@ -140,7 +140,7 @@ const Verify = () => {
         </form>
         <div className="text-center mt-6">
           <p className="text-sm text-gray-300">
-            Didn't receive a code?{" "}
+            Didn&apos;t receive a code?{" "}
             <button
               className="text-blue-500 hover:text-blue-400"
               onClick={() => setError("Resend functionality not implemented yet.")}

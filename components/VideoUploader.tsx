@@ -56,34 +56,34 @@ export function VideoUploader() {
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (!file) return;
-
+  
     setIsUploading(true);
-
+  
     try {
       // Validate file before upload
       await validateFile(file);
-
+  
       const session = await getSession();
       if (!session || !session.user?.id) {
         throw new Error("User not authenticated");
       }
-
+  
       const userId = session.user.id;
       const formData = new FormData();
       formData.append('video', file);
       formData.append('userId', userId);
-
+  
       localStorage.removeItem(`latestUpload_${userId}`);
-
+  
       const response = await fetch(`${process.env.NEXT_PUBLIC_VIDEO_UPLOAD_API}`, {
         method: 'POST',
         body: formData,
       });
-
+  
       if (!response.ok) throw new Error('Upload failed');
-
+  
       const data = await response.json();
-
+  
       // Update context and local storage
       const latestUploadData = {
         _id: data.video._id,
@@ -94,12 +94,12 @@ export function VideoUploader() {
       };
       setLatestUpload(latestUploadData);
       localStorage.setItem(`latestUpload_${userId}`, JSON.stringify(latestUploadData));
-
+  
       toast({
         title: "Success!",
         description: "Video uploaded successfully. Processing will begin shortly.",
       });
-
+  
     } catch (error) {
       console.error("Upload error:", error);
       toast({
@@ -110,7 +110,7 @@ export function VideoUploader() {
     } finally {
       setIsUploading(false);
     }
-  }, [toast, setLatestUpload]);
+  }, [toast, setLatestUpload, validateFile]); // Added validateFile to the dependency array
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
