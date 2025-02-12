@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import Image from 'next/image';
 
 export default function LandingPage() {
   const [isLoadingStart, setIsLoadingStart] = useState(false);
@@ -28,7 +29,13 @@ export default function LandingPage() {
       {/* Header */}
       <header className="flex justify-between items-center p-6">
         <div className="flex items-center space-x-3">
-          <img src="/images/side_logo.png" alt="NoteGenie Logo" className="h-14" />
+        <Image 
+            src="/images/side_logo.png" 
+            alt="NoteGenie Logo" 
+            width={56}  // Adjust width as needed
+            height={56} // Adjust height as needed
+            className="h-14 w-auto"
+          />
           {/* Hide "NoteGenie" text on smaller screens */}
           <span className="hidden sm:block text-white text-xl font-bold">NoteGenie</span>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { signOut, getSession } from 'next-auth/react';
+import Image from 'next/image';
 import { 
   Menu, 
   X, 
@@ -34,26 +35,27 @@ export function Sidebar() {
   const [blink, setBlink] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  var tier_details="Starter";
+  const [tierDetails, setTierDetails] = useState("Starter");
 
   // Get the user ID from the session and check localStorage for latestUpload
   useEffect(() => {
     const fetchUserAndLatestUpload = async () => {
       const session = await getSession();
-      console.log("session for sidebar is here : ",session);
+      console.log("session for sidebar is here : ", session);
+  
       if (session?.user?.id) {
         const userId = session.user.id;
         const storedUpload = localStorage.getItem(`latestUpload_${userId}`);
-
+  
         if (storedUpload) {
           const parsedUpload = JSON.parse(storedUpload);
-
+  
           // Check if the upload is within the last 23 hours
           const uploadDate = new Date(parsedUpload.uploadDate);
           const currentDate = new Date();
           const timeDifference = currentDate.getTime() - uploadDate.getTime();
           const hoursDifference = timeDifference / (1000 * 60 * 60);
-
+  
           if (hoursDifference <= 23) {
             setLatestUpload(parsedUpload); // Set the latest upload in the context
           } else {
@@ -63,13 +65,15 @@ export function Sidebar() {
           }
         }
       }
-      if(session?.user?.tier){
-        tier_details = session.user.tier;
+  
+      if (session?.user?.tier) {
+        setTierDetails(session.user.tier); // ✅ Now using state
       }
     };
-
+  
     fetchUserAndLatestUpload();
-  }, [setLatestUpload]);
+  }, [setLatestUpload]); // Dependencies array
+  
 
   // Trigger blink animation when latestUpload changes
   useEffect(() => {
@@ -113,10 +117,16 @@ export function Sidebar() {
         <div className="p-4 border-b border-gray-800">
           <div className="h-12 flex items-center">
             {/* Logo */}
-            <img src="/images/side_logo.png" alt="NoteGenie Logo" className="h-10 w-10 mr-2" />
+            <Image 
+                src="/images/side_logo.png" 
+                alt="NoteGenie Logo" 
+                width={56}  // Adjust width as needed
+                height={56} // Adjust height as needed
+                className="h-8 w-auto"
+              />
             {/* App Name */}
             <span className="font-semibold text-lg bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-              NOTEGENIE {tier_details}
+              NOTEGENIE {tierDetails}
             </span>
           </div>
         </div>

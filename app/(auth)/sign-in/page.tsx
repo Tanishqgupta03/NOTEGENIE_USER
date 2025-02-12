@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Alert } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from 'next/image';
 
 export default function SignIn() {
   const [error, setError] = useState<string | null>(null);
@@ -64,11 +65,13 @@ export default function SignIn() {
     <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-center p-4">
       {/* Logo and Heading */}
       <div className="flex items-center justify-center mb-8">
-        <img
-          src="/images/side_logo.png"
-          alt="NoteGenie Logo"
-          className="h-16 w-16"
-        />
+      <Image 
+        src="/images/side_logo.png" 
+        alt="NoteGenie Logo" 
+        width={56}  // Adjust width as needed
+        height={56} // Adjust height as needed
+        className="h-14 w-auto"
+      />
         <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent ml-4">
           NOTEGENIE
         </h1>
