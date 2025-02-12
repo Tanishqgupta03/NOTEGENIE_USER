@@ -75,7 +75,7 @@ export function VideoUploader() {
 
       localStorage.removeItem(`latestUpload_${userId}`);
 
-      const response = await fetch('http://localhost:3001/api/upload-video', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_VIDEO_UPLOAD_API}`, {
         method: 'POST',
         body: formData,
       });

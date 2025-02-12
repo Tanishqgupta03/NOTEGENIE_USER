@@ -134,7 +134,7 @@ function UploadedVideoPage() {
                     setIsProcessing(true); // Set loading state
                     try {
                       // Call the AI Processing Microservice
-                      const response = await fetch('http://localhost:3002/api/videoProcessing', {
+                      const response = await fetch(`${process.env.NEXT_PUBLIC_VIDEO_PROCESSING_API}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ userId, videoId, videoUrl, tier, usageCount }),
@@ -231,7 +231,7 @@ function UploadedVideoPage() {
       }
   
       // Step 5: Call the AI Processing Microservice
-      const response = await fetch('http://localhost:3002/api/videoProcessing', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_VIDEO_PROCESSING_API}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, videoId, videoUrl, tier, usageCount }),
@@ -277,7 +277,7 @@ function UploadedVideoPage() {
     if (!processedData) return;
   
     try {
-      const response = await fetch('http://localhost:3002/api/saveProcessedData', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_VIDEO_DATA_SAVING_API}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(processedData),
