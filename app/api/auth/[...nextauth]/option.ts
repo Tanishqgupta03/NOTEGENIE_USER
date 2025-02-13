@@ -62,18 +62,13 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async session({ session, token }) {
-      console.log("Session callback - Token:", token);
-      console.log("Session callback - Session before update:", session);
-
-      if (token.id && token.username) {
-        session.user = {
-          ...session.user,
-          id: token.id as string,
-          username: token.username as string,
-          tier: token.tier as string // Added tier to session
-        };
-      }
-
+      session.user = {
+        ...session.user,
+        id: token.id as string,
+        username: token.username as string,
+        tier: token.tier as string
+      };
+      console.log("Final session:", session);
       return session;
     },
     async jwt({ token, user }) {
@@ -97,7 +92,8 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        // Always secure in production (Vercel uses HTTPS)
+        secure: process.env.NEXTAUTH_URL?.startsWith("https://") 
       },
     },
   },

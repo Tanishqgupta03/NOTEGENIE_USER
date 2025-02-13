@@ -18,13 +18,16 @@ export async function middleware(req: NextRequest) {
   let token: string | undefined;
 
   try {
+    // middleware.ts
     const response = await fetch(apiUrl, {
       headers: {
-        Cookie: req.headers.get("cookie") || "",
-        // Forward other necessary headers
-        ...req.headers
+        // Forward all headers including cookies
+        ...Object.fromEntries(req.headers),
+        // Explicit cookie header (redundant but safe)
+        Cookie: req.headers.get("cookie") || "" 
       },
-      credentials: "include", // Ensures cookies are included
+      // Required for cookies to be included in cross-origin requests
+      credentials: "include" 
     });
 
     if (response.ok) {
