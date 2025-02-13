@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: process.env.NEXTAUTH_URL?.startsWith("https://")
+    secureCookie: process.env.NEXTAUTH_URL?.startsWith("https://") || process.env.NODE_ENV === "production",
   });
 
   console.log('Decoded token:', token)

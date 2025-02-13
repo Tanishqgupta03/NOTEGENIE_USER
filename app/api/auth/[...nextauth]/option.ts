@@ -92,8 +92,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        // Always secure in production (Vercel uses HTTPS)
-        secure: process.env.NEXTAUTH_URL?.startsWith("https://") 
+        secure: process.env.NODE_ENV === "production" // REQUIRED for __Secure- prefix
       },
     },
   },
