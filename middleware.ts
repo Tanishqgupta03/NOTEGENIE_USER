@@ -20,8 +20,11 @@ export async function middleware(req: NextRequest) {
   try {
     const response = await fetch(apiUrl, {
       headers: {
-        Cookie: req.headers.get("cookie") || "", // Pass cookies for token validation
+        Cookie: req.headers.get("cookie") || "",
+        // Forward other necessary headers
+        ...req.headers
       },
+      credentials: "include", // Ensures cookies are included
     });
 
     if (response.ok) {

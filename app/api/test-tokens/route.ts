@@ -5,6 +5,8 @@ export async function GET(req: NextRequest) {
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
+    // Remove the secureCookie option or set it based on the environment
+    secureCookie: process.env.NODE_ENV === "production",
   });
 
   if (token) {
