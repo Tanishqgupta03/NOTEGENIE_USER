@@ -1,6 +1,8 @@
 import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 
+export const runtime = 'nodejs';
+
 export async function GET(req: NextRequest) {
   console.log('Received cookies:', req.headers.get('cookie'))
   const token = await getToken({
