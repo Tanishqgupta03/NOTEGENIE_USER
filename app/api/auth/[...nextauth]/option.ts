@@ -93,7 +93,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: "lax",
         path: "/",
         secure: process.env.NODE_ENV === "production",
-        domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined
+        // Remove the domain setting entirely
       },
     },
   },
