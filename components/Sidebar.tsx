@@ -122,7 +122,7 @@ export function Sidebar() {
                 alt="NoteGenie Logo" 
                 width={56}  // Adjust width as needed
                 height={56} // Adjust height as needed
-                className="h-8 w-auto"
+                className="h-12 w-auto"
               />
             {/* App Name */}
             <span className="font-semibold text-lg bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
